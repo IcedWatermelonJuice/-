@@ -1,19 +1,30 @@
 // ==UserScript==
 // @name         快猫/红杏/含羞草/麻豆/AvPron/皇家会所/9sex/91TV/破解VIP视频免费看
 // @namespace    http://tampermonkey.net/
-// @version      0.26
+// @version      0.29
 // @description  来不及解释了，快上车！！！
 // @author       w2f
 // @match        https://*/videoContent/*
-// @match        https://www.hxaa75.com/*
-// @match        https://www.hxaa76.com/*
+// @match        https://*.hxaa79.com/*
+// @match        https://*.hxaa80.com/*
+// @match        https://*.hxaa81.com/*
 // @match        https://*/playvideo/*
 // @match        https://*/live/*
 // @match        https://*/live
+
 // @match        https://madou.bet/*
+// @match        https://*.com/new
+// @match        https://*.com/channel/videoList*
+// @match        https://*.com/tags*
+// @match        https://*.com/rankList
+// @match        https://madou.tv/*
+
 // @match        https://*/videos/*
-// @match        https://9sex.com/index/movie/play/id/*
+// @match        https://*/index/movie/play/id/*
 // @match        https://kdt29.com/*
+// @match        https://*/vip/index.html
+// @match        https://*/vip/list-*.html
+// @match        https://*/index/home.html
 // @icon         https://index.madou19.tv/json/icon.png
 // @license      MIT
 // @grant none
@@ -117,7 +128,7 @@
                         type: 'hls',
                     },
                 ],
-                defaultQuality: 0,//默认播放360P为0
+                defaultQuality: 0,
             }
         });
     }
@@ -126,7 +137,7 @@
     function show_err_log(err) {
         err && console.log(err);
         err_cnt++;
-        if (err_cnt >= 20) {
+        if (err_cnt >= 30) {
             err_cnt = 0;
             var mydiv = document.createElement('div');
             mydiv.innerHTML = `<div id="my_add_err_log" style="color:red;font-size:14px">
@@ -142,6 +153,35 @@
         }
     }
 
+    function do_login(){
+        let phone = JSON.parse(localStorage.getItem('move-client-user-info'))?.user?.user_info?.phone;
+        let event = document.createEvent('HTMLEvents');
+            event.initEvent("input", true, true);
+        if(phone){
+            /* 自动登录 */
+            let account = document.querySelectorAll('input.van-field__control')[0];
+            account.value = phone;
+            account.dispatchEvent(event);
+            let password = document.querySelectorAll('input.van-field__control')[1];
+            password.value = "123456";
+            password.dispatchEvent(event);
+            document.querySelector('button[type=submit]').click();
+        }else{
+            /* 自动注册 */
+            document.querySelector('div.login_1_2_1')?.click();
+            let account = document.querySelectorAll('input.van-field__control')[0];
+            account.value = ["130", "131", "132", "133", "135", "137", "138", "170", "187", "189"][ Math.floor(10 * Math.random())] + Math.floor(Math.random() * 100000000);
+            account.dispatchEvent(event);
+            let password = document.querySelectorAll('input.van-field__control')[1];
+            password.value = "123456";
+            password.dispatchEvent(event);
+            let password2 = document.querySelectorAll('input.van-field__control')[2];
+            password2.value = "123456";
+            password2.dispatchEvent(event);
+            document.querySelector('button[type=submit]').click();
+        }
+    }
+
     let flag = 0;
     function get_videourl() {
         let videoUrl = null, videoUrl2 = null, videoUrl3 = null, videoUrl4 = null;
@@ -151,8 +191,14 @@
         let shikan = null;
         let ads = null;
         try {
+            /* 猫咪vip */
+            if (location.href.match("https://www..*?.com/vip/") != null) {
+                document.querySelectorAll("li.content-item  a.video-pic")?.forEach( a => {a.href = a.href.replace("/vip/play-","/shipin/detail-")});
+                clearInterval(my_timer);
+                console.log("[猫咪]视频页面，未获取到地址，继续尝试...");
+            }
             /* 9sex */
-            if (location.href.match("https://.*?/index/movie/play/id/") != null) {
+            else if (location.href.match("https://.*?/index/movie/play/id/") != null) {
                 player = document.querySelector("#dplayer");
                 dizhi = document.body.innerHTML.match("movies/(.*?)_preview.jpg.txt")[1].split('/');/* $("script").text() */
                 /* 1.点击试看（不需要） */
@@ -171,7 +217,7 @@
                 }
                 else if (flag == 1) {
                     /* 3.1 免费视频需要加载播放后移除广告 */
-                    ads = document.querySelector(".pause-ad-imgbox"); if (ads) ads.parentNode.removeChild(ads);//.style.display = "none";
+                    ads = document.querySelector(".pause-ad-imgbox"); if (ads) ads.parentNode.removeChild(ads);
                     /* 5.停止定时器 */
                     clearInterval(my_timer);
                 }
@@ -183,9 +229,9 @@
             else if (location.href.match("https://www.hjhs.*?/videos/") != null) {
                 player = document.querySelector("#dplayer");
                 /* 1.点击试看（不需要） */
-                if (player && api && api.quality && api.quality.url) {
+                if (player && window.api?.quality?.url) {
                     /* 2.解析真实地址 */
-                    videoUrl = api.quality.url.replace("suo.", "").replace("_suo", ""); console.log("真实地址:", videoUrl);
+                    videoUrl = window.api.quality.url.replace("suo.", "").replace("_suo", ""); console.log("真实地址:", videoUrl);
                     /* 3.移除广告 */
                     /* 4.播放正片 */
                     play_video(videoUrl, player, document.querySelector("div.headline"));
@@ -200,11 +246,12 @@
             已知缺陷: 若使用Dplayer, 则 chrome/safari 播放正常（无法新标签播放，可能有限制），kiwi m3u8地址获取成功，但播放失败！
             已知缺陷: 可能网站存在限制，控制台中player.api("hls")有值，但脚本获取为null 。只有使用 unsafeWindow.player.api("hls")能获取到 ，
             但由于userscript不支持unsafeWindow，故safari浏览器+userscript无效。改为从<script/>内容查找m3u8地址 */
-            else if (location.href.match("https://theav.*?.com/videos/") != null) {
+            else if (location.href.match("https://theav.*?.com/videos/") != null ||
+                     location.href.match("https://the.*?.fun/videos/") != null ) {
                 if (1) {
                     /* 1.点击试看（不需要） */
                     /* 2.解析真实地址 */
-                    /* videoUrl = player.api("hls").url.split('?')[0]; .match("https:(.*?).m3u8")[0]; 该方案在safari浏览器+userscript下无效 */
+                    /* videoUrl = player.api("hls").url.split('?')[0]; 该方案在safari浏览器+userscript下无效 */
                     videoUrl = document.body.innerHTML.match("https:(.*?).m3u8")[0]; /* $("script").text() */
                     console.log("真实地址:", videoUrl);
                     /* 3.移除广告 */
@@ -214,7 +261,7 @@
                     ads = document.querySelector(".green"); if (ads) ads.style.display = "none";
                     /* 4.播放正片 */
                     /* play_video(videoUrl, document.querySelector(".player"), document.querySelector("h2.title"));该方案在kiwi+tempermonkey下无效 */
-                    Playerjs({ id: "newplayer", file: videoUrl, autoplay: 1 });
+                    Playerjs({ id: "player", file: videoUrl, autoplay: 1 });
                     /* 5.停止定时器 */
                     clearInterval(my_timer);
                 }
@@ -224,11 +271,11 @@
             }
             /* 快猫，兼容手机 + PC */
             else if (location.href.match("https://.*?km.*?.com/videoContent/") != null) {
-                player = document.querySelector("#videoContent");
                 /* 1.点击试看（不需要） */
-                if (player && player.__vue__ && player.__vue__.formatUrl) {
-                    /* 2.解析真实地址 */
-                    videoUrl = player.__vue__.formatUrl; console.log("真实地址:", videoUrl);
+                /* 2.解析真实地址 */
+                videoUrl = document.querySelector("#videoContent")?.__vue__?.formatUrl;
+                if (videoUrl) {
+                    console.log("真实地址:", videoUrl);
                     /* 3.移除广告 */
                     ads = document.querySelector(".exchangeBg"); if (ads != null) ads.style.display = "none";
                     /* 4.播放正片 */
@@ -241,18 +288,24 @@
                 }
             }
             /* 红杏，兼容手机 + PC */
-            else if (location.href.match("https://.*?/#/moves/playvideo/") != null) {
+            else if (location.href.match("https://.*?.hxaa.*?.com/#/moves/playvideo/") != null) {
+                let login = document.querySelector("div.play_video_wdl_2_2");
                 shikan = document.querySelector("div.shikan") || document.querySelector("div.on_play");
                 player = document.querySelector(" div#mse") || document.querySelector("div.play_video_1 div");
-                if (shikan) {
+                if(login){
+                    /* 0.登录 or 注册 */
+                    login.click();
+                    do_login();
+                }
+                else if (shikan) {
                     /* 1.点击试看 */
                     shikan.click(); console.log("点击试看！");
                 }
-                else if (player && player.__vue__ && player.__vue__.playUrl) {
+                else if (player?.__vue__?.playUrl) {
                     /* 2.解析真实地址 */
                     let videoUrl = player.__vue__.playUrl.split('&time')[0]; console.log("真实地址:", videoUrl);
                     /* 3.移除试看 */
-                    player.__vue__.player && player.__vue__.player.hls && player.__vue__.player.hls.destroy();
+                    player.__vue__.player?.hls?.destroy();
                     /* 4.播放正片 */
                     play_video(videoUrl, document.querySelector(" div#mse") || document.querySelector("div.play_video_1 div.dplayer"), document.querySelector("div.move_name") || document.querySelector("div.play_main_1"));
                     /* 5.停止定时器 */
@@ -334,7 +387,7 @@
                 }
                 clearInterval(my_timer);
                 /* 1. 显示地址 */
-                var mydiv = document.createElement('div');
+                mydiv = document.createElement('div');
                 mydiv.innerHTML = '<p id="my_add_dizhi" style="color:red;font-size:14px">提示：彦祖们，请点击图片下方的链接看破解后的直播视频！</p>';
                 document.querySelector("div.topBannerBg").after(mydiv);
             }
