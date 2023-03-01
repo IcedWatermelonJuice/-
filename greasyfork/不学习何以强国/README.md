@@ -22,9 +22,9 @@
 
 看图：
 
-![image](httpsuser-images.githubusercontent.com86897692149704031-d69cc183-ff29-40a0-94d4-a74f1d2a0edc.png)
+![image](https://user-images.githubusercontent.com/86897692/149704031-d69cc183-ff29-40a0-94d4-a74f1d2a0edc.png)
 
-![image](httpsuser-images.githubusercontent.com86897692149704044-2fb0c908-c312-42a1-9b14-1a71411b54fe.png)
+![image](https://user-images.githubusercontent.com/86897692/149704044-2fb0c908-c312-42a1-9b14-1a71411b54fe.png)
 
 
 ## 不想每天开电脑学习，可以配置 techxuexi python 在服务器。  httpsgithub.comTechXueXiTechXueXi
