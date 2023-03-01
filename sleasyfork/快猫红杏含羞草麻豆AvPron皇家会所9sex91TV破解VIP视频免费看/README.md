@@ -9,11 +9,11 @@
 |网站|地址|
 | --- | --- |
 |快猫|http://re06.cc/|
-|红杏|https://www.hxaa75.com/,http://hx1.cc/ (新增破解手机短视频😄)(地址经常变化,自己添加@match 新地址即可 )|
-|含羞草|http://www.fi11.tv/|
+|红杏|http://hx1.cc/ (vip+手机短视频，新增PC端自动注册登录）|
+|含羞草|http://www.fi11.tv/ (vip+直播，G点无效)|
 |麻豆TV|https://madou.bet/|
-|AvPron|https://theav101.com/|
+|AvPron|	https://theav101.com/<br>https://the01.fun|
 |皇家会所|http://www.hihs.tv/|
-|9sex|https://9sex.com/ (这个地址需要科学访问)|
+|9sex|https://9kn2e635.com/<br>https://9sex.com/|
 |91TV|https://kdt29.com/|
-|猫咪|https://www.3c5g9.com/ (破解vip 即将加入，尽请期待!😄)|
+|猫咪|https://www.3c5g9.com/ (vip)|
